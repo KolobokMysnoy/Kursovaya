@@ -11,7 +11,6 @@ class Loc: public ILocation
 {
 public:
     bool init(QString str) override;
-    bool init_neighboors(way_loc &loc) override;
 
     QString search_way(ILocation * from_loc) override;
     IRoom * search_for_room(size_t cab) override;
@@ -30,7 +29,6 @@ protected:
 
     std::vector <IRoom *> rooms;
     std::vector <way_loc> locs_with_ways;
-    std::vector <way_room> rooms_with_ways;
 };
 
 #endif // LOCATIONS_H

@@ -26,6 +26,8 @@ public:
     void set_graph(QString graph) override;
     QString get_graph() override;
 
+
+    virtual Building & operator=(const Building& other);
     virtual ~Building();
 private:
     QString get_way_between_locs(std::vector <ILocation *> locs);
@@ -40,7 +42,7 @@ private:
     QString graph_search(size_t cab1, size_t cab2);
     std::vector <IFloor *> floors;
 
-    short ** graph;
+    short * graph;
     size_t numbers;
 };
 

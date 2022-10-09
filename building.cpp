@@ -1,5 +1,28 @@
 #include "building.h"
 
+bool Building::init(QString init_str) {
+    QList <QString> floor = init_str.split("floor");
+
+    QList <QString> build_params = floor[0].split(':');
+    if (build_params[0] != "building") return 0;
+
+    floors.reserve(floor[1].toUInt());
+    this->numbers = floor[2].toUInt();
+
+    for(size_t i = 1; i < floor.size() - 2; ++i) {
+        floors[i-1] = new Floor;
+        floors[i-1]->init(floor[i]);
+    }
+
+    set_graph(floor[floor.size()-1]);
+
+    return 1;
+}
+
+
+// All locations to our interests
+// TODO
+// Dummy functions
 QString Building::get_all_canteens() {
     return "";
 }
@@ -13,6 +36,7 @@ QString Building::get_all_toilets() {
 }
 
 
+// Ways beetween two
 QString Building::get_way_between_locs(std::vector <ILocation *> locs) {
     QString result;
 
@@ -90,6 +114,8 @@ QString Building::get_way(QString from, QString to) {
     return "";
 }
 
+
+// Get location
 ILocation * Building::get_loc_by_room(size_t room) {
     for(IFloor * i : floors) {
         ILocation * loc = i->search_for_loc_by_room(room);
@@ -109,22 +135,84 @@ ILocation * Building::get_loc(size_t numb_of_loc) {
     return nullptr;
 }
 
+
+// get way like array of loc 1->2->3
 std::vector <ILocation *> Building::way_from_loc(size_t loc1, size_t loc2) {
     // TODO
     // DUMMY to search in graph
+    std::vector <ILocation *> vec;
+    return vec;
+}
+
+
+// set and get graph to save
+void Building::set_graph(QString graph) {
+    // TODO
+    // Get warning
+
+    if (graph.split(':')[0] != "graph") return ;
+
+    size_t column = 0;
+    size_t str = 0;
+
+    this->graph = new short [numbers * numbers];
+
+    // graph:0.1.2.3 where 0.1.2.3 is our weight of edge
+    for(QString i: graph.split(':')[1].split('.')) {
+        this->graph[column+numbers*str] = i.toUInt();
+
+        ++column;
+        if (column == numbers) {
+            column=0;
+            str+=1;
+        }
+    }
+
+}
+
+QString Building::get_graph() {
+    QString result = "graph:";
+    size_t column = 0;
+    size_t str = 1;
+
+    result += QString::number(this->graph[0]);
+
+    while (str <numbers-1) {
+        result += '.' + QString::number(this->graph[ str * numbers + column]);
+
+
+        ++column;
+        if (column == numbers) {
+            column = 0;
+            ++str;
+        }
+    }
+
+    result += '\n';
+
+    return result;
+}
+
+
+// virutals
+Building & Building::operator=(const Building &other) {
+    // TODO
+    // Need = to graph transportation
+    this->graph = other.graph;
+    this->numbers = other.numbers;
+
+    for(size_t i = 0; i < other.floors.size()-1; ++i) {
+        // TODO
+        // can broke because contains \n
+        this->floors[i] = new Floor;
+        this->floors[i]->init(other.floors[i]->get_save_info());
+    }
+
+    return *this;
 }
 
 Building::~Building() {
     for (IFloor * i: floors) {
         delete i;
     }
-}
-
-void Building::set_graph(QString graph) {
-    // TODO
-}
-
-QString Building::get_graph() {
-    // TODO
-    return "";
 }

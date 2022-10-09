@@ -1,7 +1,12 @@
 #include "locations.h"
 
+// init our location
 bool Loc::init(QString str) {
-    QList <QString> str_list = str.split('\n');
+    // split string to our params
+    QList <QString> params = str.split("room");
+
+    // get info about
+    QList <QString> str_list = params[0].split('\n');
     QList <QString> information = str_list[0].split(':');
 
     if (information.length() != 4) return 0;
@@ -11,33 +16,41 @@ bool Loc::init(QString str) {
     this->numb = information[2].toInt();
     this->info = information[3];
 
+    // get ways to locations
+    information = str_list[1].split('{');
+    if(information[0] != "way_loc") return 0;
+
+    // ways reserve
+    QList <QString> params_of_ways = information[1].split(':');
+    locs_with_ways.reserve(params_of_ways[0].toUInt());
+
+    for (size_t i = 1; i < params_of_ways.size()-1; ++i) {
+        QList <QString> param_to_way = params_of_ways[i].split(',');
+        locs_with_ways[i-1].numb = param_to_way[0].toUInt();
+        locs_with_ways[i-1].way = param_to_way[1];
+    }
+
+    // rooms
     uint16_t i = 1;
-    while(i < str_list.size() - 2) {
+    while(i < params.size() - 1) {
         rooms[i-1] = new Room;
-        rooms[i-1]->init(str_list[i]);
+        rooms[i-1]->init(params[i]);
         ++i;
     }
 
-    if (str_list[str_list.size()-1] != "end_location\n") return 0;
-
     return 1;
 }
 
-bool Loc::init_neighboors(way_loc &loc) {
-    this->locs_with_ways.push_back(loc);
-    return 1;
-}
 
+// search for way
 QString Loc::search_way_to_room(size_t cab, ILocation * loc, bool from_to) {
-    for(way_room i: rooms_with_ways) {
-        if (i.room == cab && i.loc == loc->get_numb()) {
-            if (from_to) {
-                return i.from;
-            } else {
-                return i.to;
-            }
+    for(IRoom * i: rooms) {
+        if (i->get_numb() == cab) {
+            return i->get_way_from_loc(loc, from_to);
         }
     }
+
+    return "";
 }
 
 QString Loc::search_way(ILocation *from_loc) {
@@ -48,6 +61,7 @@ QString Loc::search_way(ILocation *from_loc) {
     return "";
 }
 
+// search for room in location
 IRoom * Loc::search_for_room(size_t cab){
     for(size_t i = 0; i < this->rooms.size(); ++i) {
         if (this->rooms[i]->get_numb() == cab) return this->rooms[i];
@@ -55,6 +69,8 @@ IRoom * Loc::search_for_room(size_t cab){
     return nullptr;
 }
 
+
+// get info
 QString Loc::get_info(){
     return this->info;
 }
@@ -65,18 +81,29 @@ size_t Loc::get_numb(){
 
 QString Loc::get_save_info(){
     QString string_return;
+    // general info
     string_return = "location:" + QString::number(this->rooms.size()) + ':' +
             QString::number(this->numb) + ':' + this->info + '\n';
 
-    for (size_t i = 0; i < rooms.size()-1; ++i) {
-        string_return.push_back(rooms[i]->get_info());
+    // ways info
+    string_return += "way_loc{" + QString::number(locs_with_ways.size());
+    for (way_loc i: locs_with_ways){
+        string_return += ':' + QString::number(i.numb) +',' + i.way;
     }
 
-    string_return.push_back("end_location\n");
+    string_return +="{\n";
+
+    // rooms info
+    for (size_t i = 0; i < rooms.size()-1; ++i) {
+        string_return += rooms[i]->get_info();
+    }
+
 
     return string_return;
 }
 
+
+// virtual
 Loc & Loc::operator=(const Loc &other) {
     this->info = other.info;
     this->numb = other.numb;

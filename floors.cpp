@@ -1,31 +1,66 @@
 #include "floors.h"
 
-
+// init floor
 bool Floor::init(QString str) {
-    QList <QString> str_list = str.split('\n');
+    // TODO
+    // Warnings from below
+    QList <QString> loc_list = str.split("location");
+
+    // floor info
+    QList <QString> str_list = loc_list[0].split('\n');
     QList <QString> information = str_list[0].split(':');
 
-    if (information.length() != 4) return 0;
+    if (information.length() < 4) return 0;
     if (information[0] != "floor") return 0;
 
     this->numb = information[1].toInt();
     this->locs.reserve(information[2].toInt());
     this->info = information[3];
 
+    // locations
     uint16_t i = 1;
-    while(i < str_list.size() - 2) {
-        locs[i] = new Loc;
-        locs[i]->init(str_list[i-1]);
+    while(i < loc_list.size() - 1) {
+        locs[i-1] = new Loc;
+        locs[i-1]->init(loc_list[i]);
         ++i;
     }
-
-    if (str_list[str_list.size()-1] != "end_floor\n") return 0;
 
     return 1;
 }
 
+
+// info about floor
+QString Floor::get_save_info() {
+    // general info
+    QString string_return;
+    string_return = "floor:" + QString::number(this->locs.size()) + ':' +
+            QString::number(this->numb) + ':' + this->info + '\n';
+
+
+    // locs info
+    for (size_t i = 0; i < this->locs.size()-1; ++i) {
+        string_return += this->locs[i]->get_info();
+    }
+
+    return string_return;
+}
+
+size_t Floor::get_numb() {
+    return this->numb;
+}
+
 QString Floor::get_info_places() {
     return this->info;
+}
+
+
+// search for loc
+ILocation * Floor::search_for_loc_by_room(size_t room) {
+    for(ILocation * i : locs) {
+        if (i->search_for_room(room) != nullptr) return i;
+    }
+
+    return nullptr;
 }
 
 ILocation * Floor::search_for_loc(size_t loc_numb) {
@@ -36,22 +71,20 @@ ILocation * Floor::search_for_loc(size_t loc_numb) {
     return nullptr;
 }
 
-QString Floor::get_save_info() {
-    QString string_return;
-    string_return = "floor:" + QString::number(this->numb) + ':' +
-             QString::number(this->locs.size()) + ':' + this->info + '\n';
 
-    for (size_t i = 0; i < this->locs.size()-1; ++i) {
-        string_return.push_back(this->locs[i]->get_info());
+// virtual
+Floor & Floor::operator =(const Floor& other) {
+    this->info = other.info;
+    this->numb = other.numb;
+
+    for(size_t i = 0; i < other.locs.size()-1; ++i) {
+        // TODO
+        // can broke because contains \n
+        this->locs[i] = new Loc;
+        this->locs[i]->init(other.locs[i]->get_save_info());
     }
 
-    string_return.push_back("end_floor\n");
-
-    return string_return;
-}
-
-size_t Floor::get_numb() {
-    return this->numb;
+    return *this;
 }
 
 Floor::~Floor() {
@@ -59,12 +92,3 @@ Floor::~Floor() {
         delete locs[i];
     }
 }
-
-ILocation * Floor::search_for_loc_by_room(size_t room) {
-    for(ILocation * i : locs) {
-        if (i->search_for_room(room) != nullptr) return i;
-    }
-
-    return nullptr;
-}
-

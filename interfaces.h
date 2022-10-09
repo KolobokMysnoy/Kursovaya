@@ -31,6 +31,7 @@
 // locs with way
 
 //struct to way from location
+
 class ILocation;
 
 typedef struct {
@@ -41,7 +42,6 @@ typedef struct {
 // struct for rooms
 
 typedef struct {
-    size_t room;
     size_t loc;
     QString from;
     QString to;
@@ -53,7 +53,7 @@ class IRoom
 {
 public:
     // initialize room
-    virtual bool init(QString str) = 0;
+    virtual bool init(QString str, QString ways = "") = 0;
 
     // info about room for expand
     virtual QString get_info() = 0;
@@ -64,8 +64,11 @@ public:
     // info for save
     virtual QString get_save_info() = 0;
 
+    // get way from near loc
+    virtual QString get_way_from_loc(ILocation *loc, bool from = 0) = 0;
+
     IRoom & operator = (const IRoom& other);
-    virtual ~IRoom() = 0;
+    virtual ~IRoom() {};
 };
 
 class ILocation
@@ -74,8 +77,8 @@ public:
     // initialize location
     virtual bool init(QString str) = 0;
 
-    // initialize left locations
-    virtual bool init_neighboors(way_loc &loc) = 0;
+//    // initialize left locations
+//    virtual bool init_neighboors(way_loc &loc) = 0;
 
     // search way between locs
     virtual QString search_way(ILocation * from_loc) = 0;
@@ -92,7 +95,7 @@ public:
     virtual QString get_save_info() = 0;
 
     ILocation & operator = (const ILocation& other);
-    virtual ~ILocation() = 0;
+    virtual ~ILocation() {};
 };
 
 class IFloor
@@ -113,7 +116,7 @@ public:
     virtual ILocation * search_for_loc_by_room(size_t room) = 0;
 
     IFloor & operator=(const IFloor& other);
-    virtual ~IFloor() = 0;
+    virtual ~IFloor() {};
 };
 
 class IBuilding
@@ -128,16 +131,33 @@ public:
 
     // get ways
     virtual QString get_way(QString from, QString to) = 0;
-//    virtual QString get_loc_way(QString place) = 0;
 
     // set and get graph
     virtual void set_graph(QString graph) = 0;
     virtual QString get_graph() = 0;
 
     IBuilding & operator=(const IBuilding& other);
-    virtual ~IBuilding() = 0;
+    virtual ~IBuilding() {};
 };
 
-
-
+/*
+            FILE
+    building:number_of_floors:numbers_of_locs\n
+    floor:numb:numb_of_locs:info\n
+    location:numb_of_rooms:numb:info\n
+    way_loc{numb_of_ways:numb,way:numb,string:numb,string{\n
+    room:number:type:info\n
+    way_room{numb_of_ways:loc,from,to{\n
+    room...
+    .
+    location:
+    .
+    .
+    .
+    floor:
+    .
+    .
+    floor\n
+    graph:0.1.2.3.4.5.6.7.
+*/
 #endif // INTERFACES_H
