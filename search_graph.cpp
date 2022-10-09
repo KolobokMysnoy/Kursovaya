@@ -56,11 +56,12 @@ QString dijkstra(short graph[V][V], int src)
 
 QString algorithm_search(short ** graph,size_t size_of_matrix,
                          size_t from, size_t to){
-
+//    TODO
+    return "";
 }
 
 /* test */
-int main()
+/*int main()
 {
 
     short graph[V][V] = { { 0, 1, 0, 0, 0, 0, 0, 1, 0 },
@@ -76,4 +77,4 @@ int main()
     dijkstra(graph, 0);
 
     return 0;
-}
+}*/

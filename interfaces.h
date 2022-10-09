@@ -3,7 +3,7 @@
 
 #include <QString>
 #include <vector>
-#include "search_graph.cpp"
+//#include "search_graph.cpp"
 
 /*
     FIle
@@ -38,6 +38,15 @@ typedef struct {
     QString way;
 } way_loc;
 
+// struct for rooms
+
+typedef struct {
+    size_t room;
+    size_t loc;
+    QString from;
+    QString to;
+} way_room;
+
 //interfaces
 
 class IRoom
@@ -70,6 +79,8 @@ public:
 
     // search way between locs
     virtual QString search_way(ILocation * from_loc) = 0;
+    // search way to room
+    virtual QString search_way_to_room(size_t cab, ILocation * loc, bool from_to = 0) = 0;
     // search for room. if doesn't have then nullptr
     virtual IRoom * search_for_room(size_t cab) = 0;
 
@@ -93,12 +104,13 @@ public:
     // get info about places
     virtual QString get_info_places() = 0;
     virtual size_t get_numb() = 0;
-    // search between locations in floor
-    virtual ILocation search_for_way(size_t cab1, size_t cab2) = 0;
+    // search betwe en locations in floor
+//    virtual ILocation search_for_way(size_t cab1, size_t cab2) = 0;
     // info for save
     virtual QString get_save_info() = 0;
 
     virtual ILocation * search_for_loc(size_t loc_numb) = 0;
+    virtual ILocation * search_for_loc_by_room(size_t room) = 0;
 
     IFloor & operator=(const IFloor& other);
     virtual ~IFloor() = 0;
@@ -107,14 +119,16 @@ public:
 class IBuilding
 {
 public:
+    virtual bool init(QString init_str) = 0;
+
     // get info about places
     virtual QString get_all_toilets() = 0;
     virtual QString get_all_canteens() = 0;
     virtual QString get_all_relax() = 0;
 
     // get ways
-    virtual QString get_cab_way(size_t cab1, size_t cab2) = 0;
-    virtual QString get_loc_way(QString place) = 0;
+    virtual QString get_way(QString from, QString to) = 0;
+//    virtual QString get_loc_way(QString place) = 0;
 
     // set and get graph
     virtual void set_graph(QString graph) = 0;

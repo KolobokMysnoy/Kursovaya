@@ -1,265 +1,103 @@
 #include "building.h"
-#include <QList>
 
-
-
-//---------------ROOMS---------------------------
-
-bool Room::init(QString str) {
-    QList <QString>str_list = str.split(':');
-
-    if (str_list.length() != 4) return 0;
-    if (str_list[0] != "room") return 0;
-
-    this->numb = str_list[1].toInt();
-    this->type = str_list[2];
-    this->info = str_list[3];
-
-    return 1;
-}
-
-QString Room::get_info() {
-    return this->info;
-}
-
-QString Room::get_type() {
-    return this->type;
-}
-
-size_t Room::get_numb() {
-    return this->numb;
-}
-
-QString Room::get_save_info(){
-    return "room:" + QString::number(this->numb) + ':' +
-            type + ':' + info + '\n';
-}
-
-Room & Room::operator=(const Room& other){
-    this->numb = other.numb;
-    this->type = other.type;;
-    this->info = other.info;
-
-    return *this;
-}
-//---------------ROOMS---------------------------
-
-//---------------Loc---------------------------
-
-bool Loc::init(QString str) {
-    QList <QString> str_list = str.split('\n');
-    QList <QString> information = str_list[0].split(':');
-
-    if (information.length() != 4) return 0;
-    if (information[0] != "location") return 0;
-
-    this->rooms.reserve(information[1].toInt());
-    this->numb = information[2].toInt();
-    this->info = information[3];
-
-    uint16_t i = 1;
-    while(i < str_list.size() - 2) {
-        rooms[i-1] = new Room;
-        rooms[i-1]->init(str_list[i]);
-        ++i;
-    }
-
-    if (str_list[str_list.size()-1] != "end_location\n") return 0;
-
-    return 1;
-}
-
-bool Loc::init_neighboors(way_loc &loc) {
-    this->locs_with_ways.push_back(loc);
-    return 1;
-}
-
-QString Loc::search_way(ILocation *from_loc) {
-
-}
-
-IRoom * Loc::search_for_room(size_t cab){
-    for(size_t i = 0; i < this->rooms.size(); ++i) {
-        if (this->rooms[i]->get_numb() == cab) return this->rooms[i];
-    }
-    return nullptr;
-}
-
-QString Loc::get_info(){
-    return this->info;
-}
-
-size_t Loc::get_numb(){
-    return this->numb;
-}
-
-QString Loc::get_save_info(){
-    QString string_return;
-    string_return = "location:" + QString::number(this->rooms.size()) + ':' +
-            QString::number(this->numb) + ':' + this->info + '\n';
-
-    for (size_t i = 0; i < rooms.size()-1; ++i) {
-        string_return.push_back(rooms[i]->get_info());
-    }
-
-    string_return.push_back("end_location\n");
-
-    return string_return;
-}
-
-Loc & Loc::operator=(const Loc &other) {
-    this->info = other.info;
-    this->numb = other.numb;
-
-    for(size_t i = 0; i < other.rooms.size()-1; ++i) {
-        // TODO
-        // can broke because contains \n
-        this->rooms[i] = new Room;
-        this->rooms[i]->init(other.rooms[i]->get_save_info());
-    }
-
-    this->locs_with_ways = other.locs_with_ways;
-
-    return *this;
-}
-
-Loc::~Loc() {
-    for(size_t i = 0; i<rooms.size() - 1; ++i) {
-        delete rooms[i];
-    }
-}
-
-//---------------Loc---------------------------
-
-//---------------FLOOR-------------------------
-bool Floor::init(QString str) {
-    QList <QString> str_list = str.split('\n');
-    QList <QString> information = str_list[0].split(':');
-
-    if (information.length() != 4) return 0;
-    if (information[0] != "floor") return 0;
-
-    this->numb = information[1].toInt();
-    this->locs.reserve(information[2].toInt());
-    this->info = information[3];
-
-    uint16_t i = 1;
-    while(i < str_list.size() - 2) {
-        locs[i] = new Loc;
-        locs[i]->init(str_list[i-1]);
-        ++i;
-    }
-
-    if (str_list[str_list.size()-1] != "end_floor\n") return 0;
-
-    return 1;
-}
-
-QString Floor::get_info_places() {
-    return this->info;
-}
-
-ILocation Floor::search_for_way(size_t cab1, size_t cab2) {
-
-}
-
-ILocation * Floor::search_for_loc(size_t loc_numb) {
-    for(ILocation * i : locs) {
-        if(i->get_numb() == loc_numb ) return i;
-    }
-
-    return nullptr;
-}
-
-QString Floor::get_save_info() {
-    QString string_return;
-    string_return = "floor:" + QString::number(this->numb) + ':' +
-             QString::number(this->locs.size()) + ':' + this->info + '\n';
-
-    for (size_t i = 0; i < this->locs.size()-1; ++i) {
-        string_return.push_back(this->locs[i]->get_info());
-    }
-
-    string_return.push_back("end_floor\n");
-
-    return string_return;
-}
-
-size_t Floor::get_numb() {
-    return this->numb;
-}
-
-Floor::~Floor() {
-    for(size_t i = 0; i < locs.size() - 1; ++i) {
-        delete locs[i];
-    }
-}
-//---------------FLOOR-------------------------
-
-//---------------FLOOR-------------------------
-
-//---------------Building----------------------
 QString Building::get_all_canteens() {
-
+    return "";
 }
 
 QString Building::get_all_relax() {
-
+    return "";
 }
 
 QString Building::get_all_toilets() {
-
+    return "";
 }
 
-QString Building::get_cab_way(size_t cab1, size_t cab2) {
-    // WARNING !!!!!
-    // this method is dummy !!!
-    // results = 1:2:3:4:5:6 ...
-    QList <QString> results = algorithm_search(graph, numbers, cab1,
-                                       cab2).split(':');
 
-    std::vector <ILocation *> loc_where_search;
-    loc_where_search.reserve(results.size());
-
-    // array of location to search
-    // 1->2->3->4->5
-    for(size_t i = 0; i< results.size() - 1; ++i ) {
-        loc_where_search[i] = get_loc(results[i].toUInt());
-    }
-
+QString Building::get_way_between_locs(std::vector <ILocation *> locs) {
     QString result;
-    if(loc_where_search.size() < 3) {
-        result.push_back(loc_where_search[1]->search_way(loc_where_search[0]));
-    } else {
-    //  from 0 to 2, from 2 to 4
-        for(size_t i = 2; i < loc_where_search.size() - 1; ++i) {
-            result.push_back(loc_where_search[1]->search_way(loc_where_search[i-2])+',');
-        }
-    }
 
+    size_t i = 0;
+    while (i < locs.size()-2) {
+        result += "," + locs[i+2]->search_way(locs[i]);
+        ++i;
+    }
+    result += ',' + locs[locs.size()-2]->search_way(locs[locs.size()-1]);
     return result;
 }
 
-QString Building::get_loc_way(QString place) {
+QString Building::get_way(QString from, QString to) {
+    // from location:numb|room:numb
+    // to location:numb|room:numb
 
+    std::vector <ILocation *> where_to_search;
+
+    QList <QString> info1 = from.split(':');
+    QList <QString> info2 = to.split(':');
+
+    if (info1[0] == "location") {
+        if (info2[0] == "location") {
+            // from loc to loc
+            return get_way_between_locs(way_from_loc(info1[1].toUInt(),info2[1].toUInt()));
+        } else {
+            // from loc to room
+
+            // where to search
+            std::vector <ILocation *> where_search = way_from_loc(info1[1].toUInt(), get_loc_by_room(info2[1].toUInt())->get_numb());
+
+            // get from loc to loc
+            QString result = get_way_between_locs(where_search);
+
+            // get from loc to room
+            result += ',' + where_search[where_search.size()-1]->search_way_to_room(info2[1].toUInt(),where_search[where_search.size()-2]);
+
+            return result;
+
+        }
+    } else {
+        if (info2[0] == "location") {
+            // from room to location
+
+            // where to search
+            std::vector <ILocation *> where_search = way_from_loc(get_loc_by_room(info1[1].toUInt())->get_numb(),info2[1].toUInt());
+
+            // get from room to loc
+            QString result = where_search[0]->search_way_to_room(info2[1].toUInt(),where_search[1],1);
+            // get from loc to loc
+            result += ',' + get_way_between_locs(where_search);
+
+            return result;
+        } else {
+            // from room to room
+
+            // locs from to
+            ILocation * loc1 = get_loc_by_room(info1[1].toUInt());
+            ILocation * loc2 = get_loc_by_room(info2[1].toUInt());
+
+            // where to search
+            std::vector <ILocation *> where_search = way_from_loc(loc1->get_numb(),loc2->get_numb());
+
+            // get from room to loc
+            QString result = where_search[0]->search_way_to_room(info2[1].toUInt(),where_search[1],1);
+            // get from loc to loc
+            result += ',' + get_way_between_locs(where_search);
+            // get from loc to room
+            result += ',' + where_search[where_search.size()-1]->search_way_to_room(info2[1].toUInt(),where_search[where_search.size()-2]);
+
+            return result;
+
+        }
+    }
+    return "";
 }
 
-void Building::set_graph(QString graph) {
+ILocation * Building::get_loc_by_room(size_t room) {
+    for(IFloor * i : floors) {
+        ILocation * loc = i->search_for_loc_by_room(room);
+        if (loc != nullptr)
+            return loc;
+    }
 
-}
-
-QString Building::get_graph() {
-
-}
-
-Building::~Building() {
-
-}
-
-QString Building::graph_search(size_t cab1, size_t cab2) {
-
-
-
+    return nullptr;
 }
 
 ILocation * Building::get_loc(size_t numb_of_loc) {
@@ -270,4 +108,23 @@ ILocation * Building::get_loc(size_t numb_of_loc) {
 
     return nullptr;
 }
-//---------------Building----------------------
+
+std::vector <ILocation *> Building::way_from_loc(size_t loc1, size_t loc2) {
+    // TODO
+    // DUMMY to search in graph
+}
+
+Building::~Building() {
+    for (IFloor * i: floors) {
+        delete i;
+    }
+}
+
+void Building::set_graph(QString graph) {
+    // TODO
+}
+
+QString Building::get_graph() {
+    // TODO
+    return "";
+}

@@ -10,14 +10,20 @@ CONFIG += c++11
 
 SOURCES += \
     building.cpp \
+    floors.cpp \
+    locations.cpp \
     main.cpp \
     mainwindow.cpp \
-    search_graph.cpp
+    room.cpp \
+#    search_graph.cpp
 
 HEADERS += \
     building.h \
+    floors.h \
     interfaces.h \
-    mainwindow.h
+    locations.h \
+    mainwindow.h \
+    room.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
