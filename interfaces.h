@@ -123,6 +123,7 @@ class IBuilding
 {
 public:
     virtual bool init(QString init_str) = 0;
+    virtual QString save() = 0;
 
     // get info about places
     virtual QString get_all_toilets() = 0;

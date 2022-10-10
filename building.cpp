@@ -6,12 +6,15 @@ bool Building::init(QString init_str) {
     QList <QString> build_params = floor[0].split(':');
     if (build_params[0] != "building") return 0;
 
-    floors.reserve(floor[1].toUInt());
-    this->numbers = floor[2].toUInt();
+    floors.reserve(build_params[1].toUInt());
+    this->numbers = build_params[2].split('\n')[0].toUInt();
 
-    for(size_t i = 1; i < floor.size() - 2; ++i) {
-        floors[i-1] = new Floor;
-        floors[i-1]->init(floor[i]);
+    for(size_t i = 1; i < floor.size() - 1; ++i) {
+        // TODO
+        //        floors[i-1] = new Floor;
+        Floor * fl = new Floor;
+        fl->init("floor" + floor[i]);
+        floors.push_back(fl);
     }
 
     set_graph(floor[floor.size()-1]);
@@ -19,6 +22,19 @@ bool Building::init(QString init_str) {
     return 1;
 }
 
+QString Building::save() {
+    QString result;
+    result = "building:" + QString::number(floors.size()) + ":" +
+            QString::number(this->numbers) + '\n';
+
+    for( IFloor * i: floors) {
+        result += i->get_save_info();
+    }
+    result += "floor\n";
+    result += get_graph();
+
+    return result;
+}
 
 // All locations to our interests
 // TODO
@@ -45,7 +61,7 @@ QString Building::get_way_between_locs(std::vector <ILocation *> locs) {
         result += "," + locs[i+2]->search_way(locs[i]);
         ++i;
     }
-    result += ',' + locs[locs.size()-2]->search_way(locs[locs.size()-1]);
+    result += ',' + locs[locs.size() - 1]->search_way(locs[locs.size() - 2]);
     return result;
 }
 
@@ -101,7 +117,7 @@ QString Building::get_way(QString from, QString to) {
             std::vector <ILocation *> where_search = way_from_loc(loc1->get_numb(),loc2->get_numb());
 
             // get from room to loc
-            QString result = where_search[0]->search_way_to_room(info2[1].toUInt(),where_search[1],1);
+            QString result = where_search[0]->search_way_to_room(info1[1].toUInt(),where_search[1],1);
             // get from loc to loc
             result += ',' + get_way_between_locs(where_search);
             // get from loc to room
@@ -141,6 +157,11 @@ std::vector <ILocation *> Building::way_from_loc(size_t loc1, size_t loc2) {
     // TODO
     // DUMMY to search in graph
     std::vector <ILocation *> vec;
+    vec.push_back(floors[0]->search_for_loc(1));
+    vec.push_back(floors[0]->search_for_loc(2));
+    vec.push_back(floors[0]->search_for_loc(3));
+    vec.push_back(floors[0]->search_for_loc(5));
+    vec.push_back(floors[0]->search_for_loc(6));
     return vec;
 }
 
@@ -150,7 +171,7 @@ void Building::set_graph(QString graph) {
     // TODO
     // Get warning
 
-    if (graph.split(':')[0] != "graph") return ;
+    if (graph.split(':')[0] != "\ngraph") return ;
 
     size_t column = 0;
     size_t str = 0;
@@ -158,6 +179,7 @@ void Building::set_graph(QString graph) {
     this->graph = new short [numbers * numbers];
 
     // graph:0.1.2.3 where 0.1.2.3 is our weight of edge
+    QList <QString> ls = graph.split(':')[1].split('.');
     for(QString i: graph.split(':')[1].split('.')) {
         this->graph[column+numbers*str] = i.toUInt();
 
@@ -172,12 +194,12 @@ void Building::set_graph(QString graph) {
 
 QString Building::get_graph() {
     QString result = "graph:";
-    size_t column = 0;
-    size_t str = 1;
+    size_t column = 1;
+    size_t str = 0;
 
     result += QString::number(this->graph[0]);
 
-    while (str <numbers-1) {
+    while (str < numbers) {
         result += '.' + QString::number(this->graph[ str * numbers + column]);
 
 

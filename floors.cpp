@@ -19,9 +19,12 @@ bool Floor::init(QString str) {
 
     // locations
     uint16_t i = 1;
-    while(i < loc_list.size() - 1) {
-        locs[i-1] = new Loc;
-        locs[i-1]->init(loc_list[i]);
+    while(i < loc_list.size()) {
+        Loc *lc = new Loc;
+        lc->init("location" + loc_list[i]);
+        locs.push_back(lc);
+//        locs[i-1] = new Loc;
+//        locs[i-1]->init("location" + loc_list[i]);
         ++i;
     }
 
@@ -33,13 +36,14 @@ bool Floor::init(QString str) {
 QString Floor::get_save_info() {
     // general info
     QString string_return;
-    string_return = "floor:" + QString::number(this->locs.size()) + ':' +
-            QString::number(this->numb) + ':' + this->info + '\n';
-
+    string_return = "floor:" + QString::number(this->numb) + ':' +
+            QString::number(this->locs.size()) + ':' + this->info + '\n';
+    // CHANGES
+    //    todo
 
     // locs info
-    for (size_t i = 0; i < this->locs.size()-1; ++i) {
-        string_return += this->locs[i]->get_info();
+    for (size_t i = 0; i < this->locs.size(); ++i) {
+        string_return += this->locs[i]->get_save_info();
     }
 
     return string_return;

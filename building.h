@@ -13,6 +13,7 @@ class Building : public IBuilding
 {
 public:
     bool init(QString init_str) override;
+    virtual QString save() override;
 
     // get info about places
     QString get_all_toilets() override;
