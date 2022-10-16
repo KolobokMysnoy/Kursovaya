@@ -8,6 +8,7 @@
 
 #include "floors.h"
 #include "locations.h"
+#include "search.h"
 
 class Building : public IBuilding
 {

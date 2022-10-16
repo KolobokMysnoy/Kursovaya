@@ -15,7 +15,8 @@ SOURCES += \
     main.cpp \
     mainwindow.cpp \
     room.cpp \
-#    search_graph.cpp
+ \#    search_graph.cpp
+    search.cpp
 
 HEADERS += \
     building.h \
@@ -23,7 +24,8 @@ HEADERS += \
     interfaces.h \
     locations.h \
     mainwindow.h \
-    room.h
+    room.h \
+    search.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

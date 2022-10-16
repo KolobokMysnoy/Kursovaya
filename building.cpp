@@ -157,11 +157,12 @@ std::vector <ILocation *> Building::way_from_loc(size_t loc1, size_t loc2) {
     // TODO
     // DUMMY to search in graph
     std::vector <ILocation *> vec;
-    vec.push_back(floors[0]->search_for_loc(1));
-    vec.push_back(floors[0]->search_for_loc(2));
-    vec.push_back(floors[0]->search_for_loc(3));
-    vec.push_back(floors[0]->search_for_loc(5));
-    vec.push_back(floors[0]->search_for_loc(6));
+
+    std::vector <size_t> res = search_graph(graph, numbers, loc1, loc2);
+    for(size_t i: res) {
+        vec.push_back(this->get_loc(i));
+    }
+
     return vec;
 }
 
