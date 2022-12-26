@@ -16,6 +16,7 @@ public:
     ~MainWindow();
 private:
     void set();
+
     Building * bui;
     QVBoxLayout *vbox;
     QPushButton *but;

@@ -115,6 +115,8 @@ public:
     virtual ILocation * search_for_loc(size_t loc_numb) = 0;
     virtual ILocation * search_for_loc_by_room(size_t room) = 0;
 
+    virtual std::vector<size_t> countLocs() = 0;
+
     IFloor & operator=(const IFloor& other);
     virtual ~IFloor() {};
 };

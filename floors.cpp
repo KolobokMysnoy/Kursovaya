@@ -96,3 +96,11 @@ Floor::~Floor() {
         delete locs[i];
     }
 }
+
+std::vector<size_t> Floor::countLocs() {
+    std::vector<size_t> res;
+    for(size_t i = 0; i < locs.size(); ++i) {
+        res.push_back(locs[i]->get_numb());
+    }
+    return res;
+}

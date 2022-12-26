@@ -1,4 +1,4 @@
-#include "mainwindow.h"
+//#include "mainwindow.h"
 
 #include <QApplication>
 #include <QTextEdit>
@@ -7,10 +7,33 @@
 #include <QWidget>
 #include <QFile>
 
+#include "waywidget.h"
+#include "getwaytolocs.h"
+#include "allinformationwid.h"
 
+#include <building.h>
+
+const QString STANDART_FILE = "C:/Kursovaya/build-Kurs-Desktop_Qt_6_0_4_MinGW_64_bit-Debug/debug/doc.txt";
 
 void set(QTextEdit *ed1,QTextEdit *ed2,QTextEdit *ed3, Building *bui){
     ed3->setText(bui->get_way(ed1->toPlainText(),ed2->toPlainText()));
+}
+
+
+Building * readFromFile(Building ** bui, const QString string) {
+    QString str = string != "" ? string : STANDART_FILE;
+    (*bui) = new Building;
+    QFile file(str);
+    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+        return *bui;
+
+    QString initAll;
+    while (!file.atEnd()) {
+        QByteArray line = file.readLine();
+        initAll += line;
+    }
+    (*bui)->init(initAll);
+    return *bui;
 }
 
 QString res(QTextEdit *ed4,Building *bui){
@@ -19,48 +42,56 @@ QString res(QTextEdit *ed4,Building *bui){
 }
 int main(int argc, char *argv[])
 {
-    Building * bui;
-    QVBoxLayout *vbox;
-    QPushButton *but;
-    QTextEdit *ed1;
-    QTextEdit *ed2;
-    QTextEdit *ed3;
-    QTextEdit *ed4;
+//    setlocale(LC_ALL,"Russian");
+//    QLocale::setDefault(QLocale::Russian);
+
+    Building * bui = nullptr;
+    QVBoxLayout vbox;
 
     QApplication a(argc, argv);
-    bui = new Building;
-    QPushButton *but1 = new QPushButton;
-    but1->setText("But1");
 
-//    QString result;
+    // create all buttons
+    QPushButton buttonForEditText("Upload filename");
 
+    QPushButton buttonToSearchOfPath("Search for path");
+    QPushButton buttonToSearchToiletOrFood("Search for food or toilet");
+    QPushButton buttonToSearchForInfo("Info");
+    QPushButton buttonToExit("Exit");
 
-    vbox = new QVBoxLayout;
-    but = new QPushButton;
-    ed1 = new QTextEdit;
-    ed2 = new QTextEdit;
-    ed3 = new QTextEdit;
-    ed4 = new QTextEdit;
+    // text editor
+    QTextEdit editForNameOfFile("");
 
-    vbox->addWidget(ed1);
-    vbox->addWidget(ed2);
-    vbox->addWidget(ed3);
-    vbox->addWidget(but);
-    vbox->addWidget(ed4);
-    vbox->addWidget(but1);
+    // containers to store buttons etc
+//    vbox = new QVBoxLayout();
+    vbox.addWidget(&editForNameOfFile);
+    vbox.addWidget(&buttonForEditText);
+    vbox.addWidget(&buttonToSearchOfPath);
+    vbox.addWidget(&buttonToSearchToiletOrFood);
+    vbox.addWidget(&buttonToSearchForInfo);
+    vbox.addWidget(&buttonToExit);
 
-    QObject::connect(but,&QPushButton::clicked,[ed1,ed2,ed3,bui]{set(ed1,ed2,ed3,bui);});
-    QObject::connect(but1,&QPushButton::clicked,[ed4,bui,ed3]{ed3->setText(res(ed4,bui));});
+    // windows
+    WayWidget pathWid;
+    GetWayToLocs locsPathWid;
+    allInformationWid infoWid;
 
-    ed1->setText("1:1");
-    ed2->setText("2:2");
-//    bui->init("QString()")
+//     connects
+    QWidget wid;
+    QObject::connect(&buttonForEditText,&QPushButton::clicked, [&bui, &editForNameOfFile]{readFromFile(&bui, editForNameOfFile.toPlainText());});
+
+    QObject::connect(&buttonToSearchOfPath,&QPushButton::clicked, [&bui,&pathWid]{pathWid.getBui(bui);pathWid.show();});
+    QObject::connect(&buttonToSearchToiletOrFood,&QPushButton::clicked, [&bui,&locsPathWid]{locsPathWid.getBui(bui); locsPathWid.show();});
+    QObject::connect(&buttonToSearchForInfo,&QPushButton::clicked, [&bui,&infoWid]{infoWid.setBuilding(bui); infoWid.show();});
+
+    QObject::connect(&buttonToExit,&QPushButton::clicked, [&a, &bui, &wid] { if(bui != nullptr) {delete bui;}; wid.close(); ;a.quit();});
+//    bui->init("QString()");
 
     // TOOD
     // MEMORY LOSS
-    QWidget wid;
-    wid.setLayout(vbox);
+//    QWidget wid;
+    wid.setLayout(&vbox);
     wid.show();
 //    w.show();
     return a.exec();
 }
+

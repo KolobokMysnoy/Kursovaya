@@ -9,23 +9,29 @@ CONFIG += c++11
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    allinformationwid.cpp \
     building.cpp \
     floors.cpp \
+    getwaytolocs.cpp \
     locations.cpp \
     main.cpp \
     mainwindow.cpp \
     room.cpp \
  \#    search_graph.cpp
-    search.cpp
+    search.cpp \
+    waywidget.cpp
 
 HEADERS += \
+    allinformationwid.h \
     building.h \
     floors.h \
+    getwaytolocs.h \
     interfaces.h \
     locations.h \
     mainwindow.h \
     room.h \
-    search.h
+    search.h \
+    waywidget.h
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

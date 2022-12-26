@@ -40,15 +40,45 @@ QString Building::save() {
 // TODO
 // Dummy functions
 QString Building::get_all_canteens() {
-    return "";
+    QString res;
+    for (qsizetype i = 0; i < floors.size(); ++i) {
+        std::vector<size_t> locsFloor = floors[i]->countLocs();
+        for (size_t j = 0; j < locsFloor.size(); ++j) {
+            QString str = get_loc(locsFloor[j])->get_info();
+            if (str.split(')')[0] == "food") {
+                res.push_back(QString::number(locsFloor[j]) + " " + str.split(')')[1] + '\n');
+            }
+        }
+    }
+    return res;
 }
 
 QString Building::get_all_relax() {
-    return "";
+    QString res;
+    for (qsizetype i = 0; i < floors.size(); ++i) {
+        std::vector<size_t> locsFloor = floors[i]->countLocs();
+        for (size_t j = 0; j < locsFloor.size(); ++j) {
+            QString str = get_loc(locsFloor[j])->get_info();
+            if (str.split(')')[0] == "relax") {
+                res.push_back(QString::number(locsFloor[j]) + " " + str.split(')')[1] + '\n');
+            }
+        }
+    }
+    return res;
 }
 
 QString Building::get_all_toilets() {
-    return "";
+    QString res;
+    for (qsizetype i = 0; i < floors.size(); ++i) {
+        std::vector<size_t> locsFloor = floors[i]->countLocs();
+        for (size_t j = 0; j < locsFloor.size(); ++j) {
+            QString str = get_loc(locsFloor[j])->get_info();
+            if (str.split(')')[0] == "toilet") {
+                res.push_back(QString::number(locsFloor[j]) + " " + str.split(')')[1] + '\n');
+            }
+        }
+    }
+    return res;
 }
 
 
@@ -57,11 +87,13 @@ QString Building::get_way_between_locs(std::vector <ILocation *> locs) {
     QString result;
 
     size_t i = 0;
-    while (i < locs.size()-2) {
+    while (i < locs.size() - 2) {
+        // here is more , in i = 0
         result += "," + locs[i+2]->search_way(locs[i]);
         ++i;
+//        i+=2;
     }
-    result += ',' + locs[locs.size() - 1]->search_way(locs[locs.size() - 2]);
+//    result += ',' + locs[locs.size() - 1]->search_way(locs[locs.size() - 2]);
     return result;
 }
 
@@ -73,6 +105,9 @@ QString Building::get_way(QString from, QString to) {
 
     QList <QString> info1 = from.split(':');
     QList <QString> info2 = to.split(':');
+    if (info1.size() == 1 || info2.size() == 1) {
+        return "";
+    };
 
     if (info1[0] == "location") {
         if (info2[0] == "location") {
@@ -101,7 +136,7 @@ QString Building::get_way(QString from, QString to) {
             std::vector <ILocation *> where_search = way_from_loc(get_loc_by_room(info1[1].toUInt())->get_numb(),info2[1].toUInt());
 
             // get from room to loc
-            QString result = where_search[0]->search_way_to_room(info2[1].toUInt(),where_search[1],1);
+            QString result = where_search[0]->search_way_to_room(info1[1].toUInt(),where_search[1]);
             // get from loc to loc
             result += ',' + get_way_between_locs(where_search);
 
@@ -117,11 +152,11 @@ QString Building::get_way(QString from, QString to) {
             std::vector <ILocation *> where_search = way_from_loc(loc1->get_numb(),loc2->get_numb());
 
             // get from room to loc
-            QString result = where_search[0]->search_way_to_room(info1[1].toUInt(),where_search[1],1);
+            QString result = where_search[0]->search_way_to_room(info1[1].toUInt(),where_search[1]);
             // get from loc to loc
             result += ',' + get_way_between_locs(where_search);
             // get from loc to room
-            result += ',' + where_search[where_search.size()-1]->search_way_to_room(info2[1].toUInt(),where_search[where_search.size()-2]);
+            result += ',' + where_search[where_search.size()-1]->search_way_to_room(info2[1].toUInt(),where_search[where_search.size()-2], 1);
 
             return result;
 
@@ -143,6 +178,7 @@ ILocation * Building::get_loc_by_room(size_t room) {
 }
 
 ILocation * Building::get_loc(size_t numb_of_loc) {
+    // можно улучшить, если просмативать только соседей, а не все локации
     for(IFloor * i : floors) {
         ILocation * tmp = i->search_for_loc(numb_of_loc);
         if (tmp != nullptr) return tmp;

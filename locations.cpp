@@ -131,7 +131,9 @@ Loc & Loc::operator=(const Loc &other) {
 }
 
 Loc::~Loc() {
-    for(size_t i = 0; i<rooms.size() - 1; ++i) {
-        delete rooms[i];
+    if (rooms.size() != 0 ) {
+        for(size_t i = 0; i<rooms.size() - 1; ++i) {
+            delete rooms[i];
+        }
     }
 }

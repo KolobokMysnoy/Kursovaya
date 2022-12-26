@@ -21,6 +21,7 @@ public:
     ILocation * search_for_loc_by_room(size_t room) override;
 
     QString get_save_info() override;
+    std::vector<size_t> countLocs() override;
 
     virtual Floor & operator =(const Floor& other);
     virtual ~Floor();
